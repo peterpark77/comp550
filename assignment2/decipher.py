@@ -42,8 +42,8 @@ symbols = list(string.ascii_lowercase) + [',', '.', ' ']
 states = list(string.ascii_lowercase) + [',', '.', ' ']
 
 def bigram_dist(symb):
-    pos = open('rt-polarity.pos', 'r', encoding='utf-8', errors='ignore').read()
-    neg = open('rt-polarity.neg', 'r', encoding='utf-8', errors='ignore').read()
+    pos = open('../rt-polaritydata/rt-polarity.pos', 'r', encoding='utf-8', errors='ignore').read()
+    neg = open('../rt-polaritydata/rt-polarity.neg', 'r', encoding='utf-8', errors='ignore').read()
     sent = neg.split('\n') + pos.split('\n')
     sent = [list(x.lower()) for x in sent]
 
@@ -72,7 +72,16 @@ else:
     trainer = nltk.tag.hmm.HiddenMarkovModelTrainer(states=states, symbols=symbols)
     tagger = trainer.train_supervised(labelled_sequences=train_set)
 
-print('Accuracy:  {}'.format(100*tagger.evaluate(test_set)))
+correct_predict = 0
+prediction_count = 0
+predicted_text = []
+for i,j in zip(test_cipher,test_plain):
+    pred = tagger.best_path_simple(i)
+    for p,t in zip(pred,j):
+        if (p == t):
+            correct_predict += 1
+        prediction_count += 1
+    predicted_text.append(''.join(pred))
 
-# Comment/uncomment the following line if you don't/do want to print out the deciphered test set
-print(tagger.test(test_set, verbose=True))
+print('Accuracy:  {}'.format(correct_predict/prediction_count))
+
